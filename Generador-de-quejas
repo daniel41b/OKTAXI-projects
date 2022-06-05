@@ -1,0 +1,121 @@
+function clean() {
+
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form');
+  var rangeForms = ['D10', 'D12','D14','D16','D18','D20','F12'];
+    for (var i=0;i<rangeForms.length;i++){
+      spreadsheet.getRange(rangeForms[i]).clearContent();
+    }
+}
+
+function saving() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName('Form');
+  var datos = [[sheet.getRange('D10').getValue(),sheet.getRange('D12').getValue(),sheet.getRange('D14').getValue(),sheet.getRange('D16').getValue(),sheet.getRange('D18').getValue(),sheet.getRange('D20').getValue(),sheet.getRange('F12:K20').getValue()]]
+  
+  var hojaDestino = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Data');
+  var ultFila = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Data').getLastRow();
+  var horaGuardado = new Date()
+  
+  hojaDestino.getRange(ultFila+1,1,1,7).setValues(datos);
+  hojaDestino.getRange(ultFila+1,8).setValue(ultFila);
+  hojaDestino.getRange(ultFila+1,9).setValue(horaGuardado);
+  hojaDestino.getRange(ultFila+1,11).setValue(horaGuardado.getMonth()+1);
+
+var cab = hojaDestino.getRange(ultFila+1, 2).getValue()
+driverName(horaGuardado,cab,ultFila)
+}
+
+function alertMessage() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.alert("¿Estás seguro de guardar esta eventualidad?", SpreadsheetApp.getUi().ButtonSet.YES_NO);
+  
+  //spreadsheet.setActiveSheet(spreadsheet.getSheetByName('Data'), true)
+
+  if (result == ui.Button.YES){
+    todoJunto()
+    Browser.msgBox('Saved','New issue created', Browser.Buttons.OK)
+  } else{}
+}
+
+
+function noFilled(){
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form');
+
+  var checkDate = spreadsheet.getRange('D10');
+  var checkCab = spreadsheet.getRange('D12');
+  var checkPhone = spreadsheet.getRange('D14');
+  var checkAddress = spreadsheet.getRange('D16');
+  var checkIssue = spreadsheet.getRange('D18');
+  var checkCompletedby = spreadsheet.getRange('D20');
+  var checkDetails = spreadsheet.getRange('F12:K20');
+
+  if (checkDate.getValue() === '' ) {
+    Browser.msgBox('Error','Date required.', Browser.Buttons.OK);
+  } else if (checkCab.getValue() === '' ) {
+    Browser.msgBox('Error','Cab required.', Browser.Buttons.OK);
+  } else if (checkPhone.getValue() === '' ) {
+    Browser.msgBox('Error','Customer phone number required.', Browser.Buttons.OK);
+  } else if (checkAddress.getValue() === '' ) {
+    Browser.msgBox('Error','Address required.', Browser.Buttons.OK);
+  } else if (checkIssue.getValue() === '' ) {
+    Browser.msgBox('Error','Issue required.', Browser.Buttons.OK);
+  } else if (checkCompletedby.getValue() === '' ) {
+    Browser.msgBox('Error','Completed by field required.', Browser.Buttons.OK);
+  } else if (checkDetails.getValue() === '' ) {
+    Browser.msgBox('Error','Details required.', Browser.Buttons.OK);
+  } else {
+alertMessage()
+  }
+}
+
+function driverName(fecha, cab, ultFila){
+  var ss=SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Drivers");
+  var values = sheet.getRange('A1:L10000').getValues();
+  
+
+  //var ultFila = 11
+  //var cab = 25  
+  //let fecha = new Date(horaGuardado)
+  let minFecha = fecha - 6.912e+8
+  Logger.log(minFecha)
+  
+  let rowFound = -1;
+
+  for(row in values){
+    if(row > 0) {
+
+      if(values[row][11] <= fecha && values[row][11] >= minFecha  && cab === values[row][0] ) {
+        rowFound = row;
+        break; 
+      }
+
+      //Logger.log('fecha ' + values[row][11])
+      //Logger.log('cab ' + values[row][0])
+      //Logger.log('nombre ' + values[row][2])
+      //Logger.log('apellido ' + values[row][3])
+    }
+  }
+  //ss.getSheetByName('Data').getRange(ultFila+1,10).setValue('test'+ultFila)
+  
+  if(rowFound !== -1) {
+
+    ss.getSheetByName('Data').getRange(ultFila+1,10).setValue(values[rowFound][2]+" "+values[rowFound][3])
+
+
+    Logger.log('fila encontrada' + rowFound)
+  } else {
+    Logger.log('No se encontro driver reciente')
+  }
+
+
+
+}
+
+function todoJunto(){
+  
+  saving();
+  clean();
+
+}
