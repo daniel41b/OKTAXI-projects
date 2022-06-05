@@ -1,0 +1,66 @@
+function registering(){
+  registration()
+  cleaning()
+  }
+
+function registration() {
+  
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName('Register');
+  var datos = [[sheet.getRange('F10').getValue(),sheet.getRange('F12').getValue(),sheet.getRange('F14').getValue(),sheet.getRange('F16').getValue()]];
+
+  var hojaDestino = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Inventory');
+  var ultFila = hojaDestino.getLastRow();
+  var horaGuardado = new Date();
+  
+  hojaDestino.getRange(ultFila+1,3,1,4).setValues(datos);
+  hojaDestino.getRange(ultFila+1,1).setValue(ultFila);
+  hojaDestino.getRange(ultFila+1,2).setValue(horaGuardado);
+  hojaDestino.getRange(ultFila+1,7).setValue(0);
+  hojaDestino.getRange(ultFila+1,8).setValue(0);
+
+  }
+
+function cleaning() {
+
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName('Register');
+
+  sheet.getRange('F10:F16').clearContent();
+  }
+
+function checking(){
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Register');
+
+  var checkItem = spreadsheet.getRange('F10');
+  var checkBrand = spreadsheet.getRange('F12');
+  var checkFamily = spreadsheet.getRange('F14');
+  var checkDetails = spreadsheet.getRange('F16');
+  
+
+  if (checkItem.getValue() === '' ) {
+    Browser.msgBox('Error','Item field required.', Browser.Buttons.OK);
+    }else if (checkBrand.getValue() === '' ) {
+    Browser.msgBox('Error','Brand field required.', Browser.Buttons.OK);
+    }else if (checkFamily.getValue() === '' ) {
+    Browser.msgBox('Error','Family field required.', Browser.Buttons.OK);
+    }else if (checkDetails.getValue() === '' ) {
+    Browser.msgBox('Error','Details field required.', Browser.Buttons.OK);
+    }else {
+    alertMessage()
+    }
+  }
+
+function alertMessage() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.alert("Are you sure to continue with this registration?", SpreadsheetApp.getUi().ButtonSet.YES_NO);
+  
+  if (result == ui.Button.YES){
+    registering()
+    Browser.msgBox('Saved','New item created', Browser.Buttons.OK)
+    }
+  else {
+    }
+  }
+
