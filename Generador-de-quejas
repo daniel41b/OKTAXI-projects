@@ -1,3 +1,5 @@
+//limpia campos.
+
 function clean() {
 
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form');
@@ -6,6 +8,8 @@ function clean() {
       spreadsheet.getRange(rangeForms[i]).clearContent();
     }
 }
+
+// Guarda datos en base de datos
 
 function saving() {
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -25,6 +29,8 @@ var cab = hojaDestino.getRange(ultFila+1, 2).getValue()
 driverName(horaGuardado,cab,ultFila)
 }
 
+
+//Mensaje de confirmacion
 function alertMessage() {
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   var ui = SpreadsheetApp.getUi();
@@ -38,7 +44,7 @@ function alertMessage() {
   } else{}
 }
 
-
+//verifica que se haya llenado los campos
 function noFilled(){
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form');
 
@@ -69,6 +75,7 @@ alertMessage()
   }
 }
 
+//Obtiene el nombre del condutor
 function driverName(fecha, cab, ultFila){
   var ss=SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Drivers");
@@ -112,7 +119,7 @@ function driverName(fecha, cab, ultFila){
 
 
 }
-
+//Activa el orden de funciones
 function todoJunto(){
   
   saving();
