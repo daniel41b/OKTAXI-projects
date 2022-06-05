@@ -1,0 +1,137 @@
+// Al seleccionar una PQR la información de esta se muestra en los campos respectivos y le permite al supervisor responderlas.
+// al seleccionar una pqr, si hay otra seleccionada, se demarcará
+let ultimaSeleccionada;
+
+function onEdit(){
+  var formSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Answering");
+  var activeRange= formSheet.getActiveRange();
+
+  const activeRow = activeRange.getRow();
+  const activeColumn = activeRange.getColumn();
+  const initialRow = 7;
+  const maxRow = 35;
+
+  if (activeRange.getValue() === true && activeRow > 7) {
+    var rangeSelect1 = formSheet.getRange(initialRow,13,activeRow - initialRow);
+ 
+    rangeSelect1.uncheck()
+
+    var rangeSelect2 = formSheet.getRange(activeRow + 1,13, maxRow- activeRow);
+    rangeSelect2.uncheck()
+
+  }
+  if (activeRow === 7){
+    var rangeSelect1 = formSheet.getRange(8,13,maxRow - 8);
+ 
+    rangeSelect1.uncheck()
+  }
+  
+
+  if (activeColumn === 13 && activeRow <= 35 && activeRow >= 7){
+  ultimaSeleccionada = activeRow
+  }
+}
+
+var out;
+
+//Busca la celda que este seleccionada y  guarda el id de la pqr en out
+
+function answering (){
+  var hojaActiva = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var matchValue = true;
+  var searchRange = hojaActiva.getRange('M7:N35').getValues();
+  
+  let i = 0;
+
+  for( i ; i < searchRange.length; i++){
+    if(searchRange[i][0] === matchValue)
+      break;
+  }
+  out = searchRange[i][1];
+
+
+  
+searching();
+pegar();
+clean();
+
+}
+
+//Busca el id en la hoja de la data y la guarda en row.
+
+let j = 0;
+function searching(){
+
+  var hojaData = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Fulldata");
+  var searchDataR = hojaData.getRange('A1:A1000');
+  var searchDataV = searchDataR.getValues();
+  
+  for (j ; j < searchDataV.length; j++){
+    if (searchDataV[j][0] === out)
+    break;
+  }
+    row = searchDataV[j][0];
+
+} 
+
+//Obtiene las respuestas del supervisor y las pone en la base de datos. 
+
+function pegar(){
+ var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName('Answering');
+  var datos = [[sheet.getRange('C24:G34').getValue(),sheet.getRange('I24').getValue(),sheet.getRange('I27').getValue()]]
+  
+  var hojaDestino = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Fulldata');
+  
+ 
+hojaDestino.getRange(j+1,11,1,3).setValues(datos);
+hojaDestino.getRange(j+1,14).setValue(new Date());
+hojaDestino.getRange(j+1,15).setValue(new Date().getMonth()+1);
+
+}
+
+//limpia el formulario
+
+function clean() {
+
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Answering');
+  var rangeForms = ['I27', 'I24','C24'];
+    for (var i=0;i<rangeForms.length;i++){
+      spreadsheet.getRange(rangeForms[i]).clearContent();
+    }
+}
+
+// Valida que se hayan llenado los campos
+
+function completarCampos(){
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Answering');
+
+  var checkPenalty = spreadsheet.getRange('I24');
+  var checkSupervisor = spreadsheet.getRange('I27');
+  var checkFeedback = spreadsheet.getRange('C24:G34');
+
+  if (checkPenalty.getValue() === '' ) {
+    Browser.msgBox('Error','Se requiere completar el campo "Penalización".', Browser.Buttons.OK);
+  } else if (checkSupervisor.getValue() === '' ) {
+    Browser.msgBox('Error','Se requiere completar el campo "supervisor".', Browser.Buttons.OK);
+  } else if (checkFeedback.getValue() === '' ) {
+    Browser.msgBox('Error','Se requiere completar el campo "Feedback".', Browser.Buttons.OK);
+  } else{
+    alertMessage()
+  }
+
+}
+
+//Confirmacion para guardar
+
+function alertMessage() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.alert("¿Estás seguro de enviar esta respuesta?", SpreadsheetApp.getUi().ButtonSet.YES_NO);
+  
+  if (result == ui.Button.YES){
+    answering();
+
+    Browser.msgBox('Respuesta guardada', Browser.Buttons.OK)
+  }
+}
