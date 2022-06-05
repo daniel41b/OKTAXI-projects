@@ -1,0 +1,99 @@
+function starting(){
+  calendar()
+  registerInput()
+  }
+
+function registerInput() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName('Inputs');
+  var rangeClear = sheet.getRangeList(['C11:D11','I11:M11']);
+  var rangeData = sheet.getRange('C11:M11');
+
+  var data = rangeData.getValues();
+  var movessheet = spreadsheet.getSheetByName('Movements');
+  var lastRow = movessheet.getLastRow();
+  var timeStamp = new Date;
+
+  movessheet.getRange(lastRow + 1, 1).setValue(1000+lastRow);
+  movessheet.getRange(lastRow + 1, 2).setValue(timeStamp);
+  movessheet.getRange(lastRow+1, 3,1,11).setValues(data);
+  movessheet.getRange(lastRow+1, 14).setValue("Input");
+
+  rangeClear.clearContent();
+  }
+
+function calendar() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName('Inputs');
+  var idItem = sheet.getRange('E11').getValue();
+  var qty = sheet.getRange('I11').getValue();
+  var price = sheet.getRange('J11').getValue();
+  var inventorysheet = spreadsheet.getSheetByName('Inventory');
+  var lastRow = inventorysheet.getLastRow();
+  var i = 1
+
+  while (i <= lastRow){
+    var items = inventorysheet.getRange(i,1).getValue();
+
+    if  (items === idItem){
+      var amount = inventorysheet.getRange(i,7).getValue();
+      var cost = inventorysheet.getRange(i,8).getValue();
+
+      inventorysheet.getRange(i,7).setValue(qty + amount);
+      inventorysheet.getRange(i,8).setValue(price + cost);
+      
+      var totalQty = inventorysheet.getRange(i,7).getValue();
+      var totalCost = inventorysheet.getRange(i,8).getValue();
+
+      inventorysheet.getRange(i,9).setValue(totalCost / totalQty)
+      }
+    
+    if (items === ""){
+    break;
+    }
+  i = i + 1
+  }
+  }
+
+function formFilled() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Inputs');
+  var checkDate = spreadsheet.getRange('C11');
+  var checkItem = spreadsheet.getRange('D11');
+  var checkQty = spreadsheet.getRange('I11');
+  var checkPrice = spreadsheet.getRange('J11');
+  var checkRespon = spreadsheet.getRange('K11');
+  var checkConcept = spreadsheet.getRange('L11');
+  var checkSupplier = spreadsheet.getRange('M11');
+
+
+  if (checkDate.getValue() === '' ) {
+    Browser.msgBox('Error','Date field required.', Browser.Buttons.OK);
+  } else if (checkItem.getValue() === '' ) {
+    Browser.msgBox('Error','Item field required.', Browser.Buttons.OK);
+  } else if (checkQty.getValue() === '' ) {
+    Browser.msgBox('Error','Quantity field required.', Browser.Buttons.OK);
+  }else if (checkPrice.getValue() === '' ) {
+    Browser.msgBox('Error','Price field required.', Browser.Buttons.OK);
+  }else if (checkRespon.getValue() === '' ) {
+    Browser.msgBox('Error','Responsible field required.', Browser.Buttons.OK);
+  }else if (checkConcept.getValue() === '' ) {
+    Browser.msgBox('Error','Concept field required.', Browser.Buttons.OK);
+  }else if (checkSupplier.getValue() === '' ) {
+    Browser.msgBox('Error','Supplier field required.', Browser.Buttons.OK);
+  } else {
+  alertBox()
+  }
+  }
+
+function alertBox(){
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.alert("Are you confirm this INPUT movement?", SpreadsheetApp.getUi().ButtonSet.YES_NO);
+  
+  if (result == ui.Button.YES){
+    starting()
+    Browser.msgBox('Saved','New item created', Browser.Buttons.OK)
+    }
+  else {
+    }
+  }
